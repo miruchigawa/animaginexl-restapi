@@ -6,7 +6,7 @@ from diffusers import StableDiffusionXLPipeline, EulerDiscreteScheduler, EulerAn
 
 
 def load_pipeline(
-        model: str = "https://huggingface.co/cagliostrolab/animagine-xl-3.0/blob/main/animagine-xl-3.0.safetensors",
+        model: str = "https://huggingface.co/cagliostrolab/animagine-xl-3.1/blob/main/animagine-xl-3.1.safetensors",
         vae_model: str = "madebyollin/sdxl-vae-fp16-fix"
     ):
     

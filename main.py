@@ -1,4 +1,5 @@
 import os
+import torch
 import uvicorn
 import sqlite3 as sql
 from uuid import uuid4

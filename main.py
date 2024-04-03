@@ -98,6 +98,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 def root_path():
     return { "status": "success", "message": "Welcome to AnimagineXL restapi", "issue": "https://github.com/miruchigawa/animaginexl-restapi/issues", "author": ["miruchigawa <moe@miwudev.my.id>" ]}
 
+@app.get("/api/v1/ping")
+def pimg_server():
+    return { "ststus": "success", "message": "Nyaho", "device": "cuda" if torch.cuda.is_available() else "cpu", "device_count": torch.cuda.device_count(), "device_name": torch.cuda.get_device_name(0)}
+
 @app.get("/api/v1/txt2img")
 def text_to_image(prompt: str = None,
                   neg_prompt: str = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name",

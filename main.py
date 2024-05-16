@@ -144,7 +144,7 @@ def text_to_image(body: Txt2ImgBody):
     cursor = create_cursor(connection)
     uid = str(uuid4())
     task = {
-        "uid": body.uid,
+        "uid": uid,
         "prompt": body.prompt,
         "neg_prompt": body.neg_prompt,
         "width": body.width,
@@ -187,7 +187,7 @@ def text_to_image(body: Txt2ImgBody):
     
     return { "status": "on_progress",
             "message": { 
-                "uid": body.uid,
+                "uid": uid,
                 "prompt": body.prompt,
                 "neg_prompt": body.neg_prompt,
                 "width": body.width,

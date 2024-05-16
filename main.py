@@ -59,7 +59,7 @@ AnimagineXL Setup
 pipe = load_pipeline()
 
 def generate_txt2img(task, cursor):
-    timestamp = datetime.now()
+    timestamp = datetime.now().strftime("%y-%m-%d-%H-%M")
     filename_output = f"static/generate-{task['uid']}-{timestamp}.png"
      
     scheduler = pipe.scheduler
@@ -108,7 +108,10 @@ def ping_server():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     device_count = torch.cuda.device_count()
     
-    # Reference: https://pytorch.org/docs/stable/generated/torch.cuda.mem_get_info.html#torch.cuda.mem_get_info
+    """ 
+    Reference: 
+        https://pytorch.org/docs/stable/generated/torch.cuda.mem_get_info.html#torch.cuda.mem_get_info
+    """
     if device == "cuda":
         device = []
         for i in range(device_count):

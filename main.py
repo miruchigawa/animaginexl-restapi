@@ -105,16 +105,11 @@ def pimg_server():
     device_count = torch.cuda.device_count()
     
     if device == "cuda":
-        if device_count > 1:
-            device = []
-            for i in range(device_count):
-                name = torch.cuda.get_device_name(i)
-                vmem_used, vmem_total = torch.cuda.mem_get_info(i)
-                device.append({ "id": i, "name": name, "memory_used": vmem_used, "memory_total": vmem_total })
-        else:
-            name = torch.cuda.get_device_name(0)
-            vmem_used, vmem_total = torch.cuda.mem_get_info(0)
-            device = { "id": 0, "name": name, "memory_used": vmem_used, "memory_total": vmem_total }
+        device = []
+        for i in range(device_count):
+            name = torch.cuda.get_device_name(i)
+            vmem_used, vmem_total = torch.cuda.mem_get_info(i)
+            device.append({ "id": i, "name": name, "memory_used": vmem_used, "memory_total": vmem_total })
     else:
         device = { "name": "cpu", }
     return { "status": "success", "message": { "response": "Nyaho", "device": device }}

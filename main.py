@@ -114,7 +114,7 @@ def pimg_server():
         else:
             name = torch.cuda.get_device_name(0)
             vmem_used, vmem_total = torch.cuda.mem_get_info(0)
-            device = { "id": 0, "name": name, "memory_used": vmem_used, "memory_total": vmem_total })
+            device = { "id": 0, "name": name, "memory_used": vmem_used, "memory_total": vmem_total }
     else:
         device = { "name": "cpu", }
     return { "status": "success", "message": { "response": "Nyaho", "device": device }}

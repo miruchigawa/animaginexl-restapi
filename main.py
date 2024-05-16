@@ -101,7 +101,23 @@ def root_path():
 
 @app.get("/api/v1/ping")
 def pimg_server():
-    return { "ststus": "success", "message": "Nyaho", "device": "cuda" if torch.cuda.is_available() else "cpu", "device_count": torch.cuda.device_count(), "device_name": torch.cuda.get_device_name(0)}
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device_count = torch.cuda.device_count()
+    
+    if device == "cuda":
+        if device_count > 1:
+            device = []
+            for i in range(device_count):
+                name = torch.cuda.get_device_name(i)
+                vmem_used, vmem_total = torch.cuda.mem_get_info(i)
+                device.append({ "id": i, "name": name, "memory_used": vmem_used, "memory_total": vmem_total })
+        else:
+            name = torch.cuda.get_device_name(0)
+            vmem_used, vmem_total = torch.cuda.mem_get_info(0)
+            device = { "id": 0, "name": name, "memory_used": vmem_used, "memory_total": vmem_total })
+    else:
+        device = { "name": "cpu", }
+    return { "status": "success", "message": { "response": "Nyaho", "device": device }}
 
 @app.get("/api/v1/txt2img")
 def text_to_image(prompt: str = None,
@@ -161,7 +177,19 @@ def text_to_image(prompt: str = None,
     queue.put(task)
     size_now = queue.qsize()
     
-    return { "status": "on_progress", "uid": uid, "queue number": f"{size_now}/{queue.maxsize}"}
+    return { "status": "on_progress",
+            "message": { 
+                "uid": uid,
+                "prompt": prompt,
+                "neg_prompt": neg_prompt,
+                "width": width,
+                "height": height,
+                "guidance_scale": guidance_scale,
+                "steps": steps,
+                "sampler": sampler,
+                "queue_number": f"{size_now}/{queue.maxsize}"
+                }
+            }
 
 @app.get("/api/v1/info")
 def get_status_task(uid: str = None):

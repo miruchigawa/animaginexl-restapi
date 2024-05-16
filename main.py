@@ -97,19 +97,24 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def root_path():
+    """ The root path """
+
     return { "status": "success", "message": "Welcome to AnimagineXL restapi", "issue": "https://github.com/miruchigawa/animaginexl-restapi/issues", "author": ["miruchigawa <moe@miwudev.my.id>" ]}
 
 @app.get("/api/v1/ping")
-def pimg_server():
+def ping_server():
+    """ Returns server related information """
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     device_count = torch.cuda.device_count()
     
+    # Reference: https://pytorch.org/docs/stable/generated/torch.cuda.mem_get_info.html#torch.cuda.mem_get_info
     if device == "cuda":
         device = []
         for i in range(device_count):
             name = torch.cuda.get_device_name(i)
             vmem_used, vmem_total = torch.cuda.mem_get_info(i)
-            device.append({ "id": i, "name": name, "memory_used": vmem_used, "memory_total": vmem_total })
+            device.append({ "id": i, "name": name, "memory_free": vmem_used, "memory_total": vmem_total })
     else:
         device = { "name": "cpu", }
     return { "status": "success", "message": { "response": "Nyaho", "device": device }}

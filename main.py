@@ -8,6 +8,7 @@ from threading import Thread
 from PIL import Image
 from datetime import datetime 
 from fastapi import FastAPI
+from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from model import load_pipeline, get_sampler, free
 
@@ -91,6 +92,16 @@ def generate_txt2img(task, cursor):
 """
 FastAPI Setup
 """
+class Txt2ImgBody(BaseModel):
+    prompt: str
+    neg_prompt: str 
+    width:int = 1024
+    height:int = 1024
+    guidance_scale: int
+    steps:int
+    sampler: str
+
+
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -122,15 +133,9 @@ def ping_server():
         device = { "name": "cpu", }
     return { "status": "success", "message": { "response": "Nyaho", "device": device }}
 
-@app.get("/api/v1/txt2img")
-def text_to_image(prompt: str = None,
-                  neg_prompt: str = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name",
-                  width:int = 1024,
-                  height:int = 1024,
-                  guidance_scale: int = 7,
-                  steps:int = 28,
-                  sampler: str = "DPM++ 2M Karras"):
-    if not prompt or prompt == "":
+@app.post("/api/v1/txt2img")
+def text_to_image(body: Txt2ImgBody):
+    if not body.prompt or body.prompt == "":
         return {"status": "failed", "message": "Missing prompt!"}
     if queue.full():
         return { "status": "failed", "message": "Queue full, try again in 30 seconds." }
@@ -139,14 +144,14 @@ def text_to_image(prompt: str = None,
     cursor = create_cursor(connection)
     uid = str(uuid4())
     task = {
-        "uid": uid,
-        "prompt": prompt,
-        "neg_prompt": neg_prompt,
-        "width": width,
-        "height": height,
-        "guidance_scale": guidance_scale,
-        "steps": steps,
-        "sampler": sampler
+        "uid": body.uid,
+        "prompt": body.prompt,
+        "neg_prompt": body.neg_prompt,
+        "width": body.width,
+        "height": body.height,
+        "guidance_scale": body.guidance_scale,
+        "steps": body.steps,
+        "sampler": body.sampler
     }
 
     cursor.execute("""
@@ -173,7 +178,7 @@ def text_to_image(prompt: str = None,
             ?,
             ?
         )
-    """, (uid, "on_progress", prompt, neg_prompt, steps, width, height, guidance_scale, sampler, ""))
+    """, (uid, "on_progress", body.prompt, body.neg_prompt, body.steps, body.width, body.height, body.guidance_scale, body.sampler, ""))
     connection.commit()
     connection.close()
 
@@ -182,14 +187,14 @@ def text_to_image(prompt: str = None,
     
     return { "status": "on_progress",
             "message": { 
-                "uid": uid,
-                "prompt": prompt,
-                "neg_prompt": neg_prompt,
-                "width": width,
-                "height": height,
-                "guidance_scale": guidance_scale,
-                "steps": steps,
-                "sampler": sampler,
+                "uid": body.uid,
+                "prompt": body.prompt,
+                "neg_prompt": body.neg_prompt,
+                "width": body.width,
+                "height": body.height,
+                "guidance_scale": body.guidance_scale,
+                "steps": body.steps,
+                "sampler": body.sampler,
                 "queue_number": f"{size_now}/{queue.maxsize}"
                 }
             }
